@@ -23,7 +23,7 @@ const schemaString = `...`;
 const schema = makeExecutableSchema({ typeDefs: schemaString });
 
 // Add mocks, modifies schema in place
-addMockFunctionsToSchema(schema);
+addMockFunctionsToSchema({ schema });
 
 const query = `
 query tasksForUser {
@@ -100,8 +100,8 @@ import { addMockFunctionsToSchema } from 'graphql-tools';
 
 addMockFunctionsToSchema({
   schema,
-  mocks = {},
-  preserveResolvers = false,
+  mocks: {},
+  preserveResolvers: false,
 });
 ```
 
