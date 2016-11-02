@@ -96,17 +96,19 @@ You could specify the schema like so
 
 ```
 interface Vehicle {
-  max_speed: Int
+  maxSpeed: Int
 }
 
-type Airplane implements Interface {
-  max_speed: Int
+type Airplane implements Vehicle {
+  maxSpeed: Int
   engines: Int
+  wingspan: Int
 }
 
-type Car implements Interface {
-  max_speed: Int
+type Car implements Vehicle {
+  maxSpeed: Int
   cylinders: Int
+  licensePlate: String
 }
 ```
 
