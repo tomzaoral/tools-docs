@@ -99,14 +99,16 @@ interface Vehicle {
   max_speed: Int
 }
 
-type Airplane implements Interface {
+type Airplane implements Vehicle {
   max_speed: Int
   engines: Int
+  wingspan: Int
 }
 
-type Car implements Interface {
+type Car implements Vehicle {
   max_speed: Int
   cylinders: Int
+  license_plate: String
 }
 ```
 
@@ -118,7 +120,7 @@ const resolverMap = {
         return 'Airplane';
       }
 
-      if(data.licensePlate){
+      if(data.license_plate){
         return 'Car';
       }
 
