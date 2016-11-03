@@ -101,13 +101,11 @@ interface Vehicle {
 
 type Airplane implements Vehicle {
   maxSpeed: Int
-  engines: Int
   wingspan: Int
 }
 
 type Car implements Vehicle {
   maxSpeed: Int
-  cylinders: Int
   licensePlate: String
 }
 ```
