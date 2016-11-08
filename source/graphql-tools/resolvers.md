@@ -86,9 +86,29 @@ So, in the example query above, the `name` and `title` fields wouldn't need a re
 
 ## Unions and interfaces
 
+Unions and interfaces are great when you have fields that are in common between two types.
+
 When you have a field in your schema that returns a union or interface type, you will need to specify an extra `__resolveType` field in your resolver map, which tells the GraphQL executor which type the result is, out of the available options.
 
 For example, if you have a `Vehicle` interface type with members `Airplane` and `Car`:
+
+You could specify the schema like so
+
+```
+interface Vehicle {
+  maxSpeed: Int
+}
+
+type Airplane implements Vehicle {
+  maxSpeed: Int
+  wingspan: Int
+}
+
+type Car implements Vehicle {
+  maxSpeed: Int
+  licensePlate: String
+}
+```
 
 ```js
 const resolverMap = {
