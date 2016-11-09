@@ -12,7 +12,114 @@ To define a custom scalar you simply add it to the schema string with the follow
 scalar MyCustomScalar
 ```
 
-Afterwards, you need to define the behavior of the scalar by supplying three functions:
+Afterwards, you have two options to define the behavior of your `MyCustomScalar` custom scalar:
+1. [Pass an instance of the `GraphQLScalarType` class](#GraphQLScalarType-instance) in the [resolver map](/tools/graphql-tools/resolvers.html#Resolver-map).
+2. [Define a custom object](#Custom-object) which will resolve your custom scalar type and use this object in the [resolver map](/tools/graphql-tools/resolvers.html#Resolver-map).
+
+Note that [Apollo Client does not currently have a way to automatically interpret custom scalars](https://github.com/apollostack/apollo-client/issues/585), so there's no way to automatically reverse the serialization on the client.
+
+## GraphQLScalarType instance
+
+If you choose this option, then the [`GraphQLScalarType`](http://graphql.org/graphql-js/type/#graphqlscalartype) instance you pass in the resolver map can be defined in a [dependency package](#Using-a-package) or [in your own code](#Own-GraphQLScalarType-instance).
+
+### Using a package
+
+Here, we'll take the [graphql-type-json](https://github.com/taion/graphql-type-json) package as an example to demonstrate what can be done. This npm package defines a JSON GraphQL scalar type.
+
+* Add the `graphql-type-json` package to your project's dependencies :
+```shell
+$ npm install --save graphql-type-json
+```
+
+* In your JavaScript code, require the type defined by in the npm package and use it :
+
+```js
+import { makeExecutableSchema } from 'graphql-tools';
+const GraphQLJSON = require('graphql-type-json');
+
+const schemaString = `
+
+scalar JSON
+
+type Foo {
+  aField: JSON
+}
+
+type Query {
+  foo: Foo
+}
+
+`;
+
+const resolveFunctions = {
+  JSON: GraphQLJSON
+};
+
+const jsSchema = makeExecutableSchema({ typeDefs: schemaString, resolvers: resolveFunctions });
+```
+
+Remark : `GraphQLJSON` is a [`GraphQLScalarType`](http://graphql.org/graphql-js/type/#graphqlscalartype) instance.
+
+### Own `GraphQLScalarType` instance
+
+If needed, you can define your own [GraphQLScalarType](http://graphql.org/graphql-js/type/#graphqlscalartype) instance. This can be done the following way :
+
+```js
+import { GraphQLScalarType } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+
+function mySerialize(value) {
+  let result;
+  // Implement your own behavior here by setting the 'result' variable
+  return result;
+}
+
+function myParseValue(value) {
+  let result;
+  // Implement your own behavior here by setting the 'result' variable
+  return result;
+}
+
+function myParseLiteral(ast) {
+  switch (ast.kind) {
+    // Implement your own behavior here by returning what suits your needs
+    // depending on ast.kind
+  }
+}
+
+const myCustomScalarType = new GraphQLScalarType({
+  name: 'MyCustomScalar',
+  description: 'Description of my custom scalar type',
+  serialize: mySerialize,
+  parseValue: myParseValue,
+  parseLiteral: myParseLiteral
+});
+
+const schemaString = `
+
+scalar MyCustomScalar
+
+type Foo {
+  aField: MyCustomScalar
+}
+
+type Query {
+  foo: Foo
+}
+
+`;
+
+const resolverFunctions = {
+  MyCustomScalar: myCustomScalarType
+};
+
+const jsSchema = makeExecutableSchema({ typeDefs: schemaString, resolvers: resolveFunctions });
+```
+
+
+## Custom object
+
+If you choose this option, you need to define the behavior of the scalar by supplying three functions:
 
 1. `__serialize`: How the value should be serialized as JSON when sent to the client in the query result.
 2. `__parseValue`: How the value should be parsed from JSON when received from the client in the form of query variables.
@@ -20,11 +127,7 @@ Afterwards, you need to define the behavior of the scalar by supplying three fun
 
 These are the same as the methods you would use with GraphQL.js directly, but in `graphql-tools` they are prefixed with a double underscore to differentiate from field names.
 
-Note that [Apollo Client does not currently have a way to automatically interpret custom scalars](https://github.com/apollostack/apollo-client/issues/585), so there's no way to automatically reverse the serialization on the client.
-
-## Examples
-
-Let's look at a couple of examples to demonstrate the potential of custom scalars.
+Let's look at a couple of examples to demonstrate how a custom scalar type can be defined using a custom object.
 
 ### Date as a scalar
 
