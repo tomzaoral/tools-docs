@@ -114,11 +114,11 @@ type Car implements Vehicle {
 const resolverMap = {
   Vehicle: {
     __resolveType(root, context, info){
-      if(data.wingspan){
+      if(root.wingspan){
         return 'Airplane';
       }
 
-      if(data.licensePlate){
+      if(root.licensePlate){
         return 'Car';
       }
 
