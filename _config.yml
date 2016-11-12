@@ -31,7 +31,7 @@ sidebar_categories:
     - graphql-server/migration-hapi
     - graphql-server/migration
 github_repo: apollostack/tools-docs
-content_root: source
+content_root: tools
 
 social_links:
   github: 'https://github.com/apollostack'
@@ -49,7 +49,7 @@ permalink: :year/:month/:day/:title/
 permalink_defaults:
 
 # Directory
-source_dir: source
+source_dir: tools
 public_dir: public
 tag_dir: tags
 archive_dir: archives
