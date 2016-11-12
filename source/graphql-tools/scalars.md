@@ -12,19 +12,103 @@ To define a custom scalar you simply add it to the schema string with the follow
 scalar MyCustomScalar
 ```
 
-Afterwards, you need to define the behavior of the scalar by supplying three functions:
+Afterwards, you have to define the behavior of your `MyCustomScalar` custom scalar by passing an instance of the [`GraphQLScalarType`](http://graphql.org/graphql-js/type/#graphqlscalartype) class in the [resolver map](/tools/graphql-tools/resolvers.html#Resolver-map). This instance can be defined in a [dependency package](#Using-a-package) or [in your own code](#Own-GraphQLScalarType-instance).
 
-1. `__serialize`: How the value should be serialized as JSON when sent to the client in the query result.
-2. `__parseValue`: How the value should be parsed from JSON when received from the client in the form of query variables.
-3. `__parseLiteral`: How the value should be parsed from the query AST when received from the client as an inline argument in the query.
-
-These are the same as the methods you would use with GraphQL.js directly, but in `graphql-tools` they are prefixed with a double underscore to differentiate from field names.
+For more information about GraphQL's type system, please refer to the [official documentation](http://graphql.org/graphql-js/type/) or to the [Learning GraphQL](https://github.com/mugli/learning-graphql/blob/master/7.%20Deep%20Dive%20into%20GraphQL%20Type%20System.md) tutorial.
 
 Note that [Apollo Client does not currently have a way to automatically interpret custom scalars](https://github.com/apollostack/apollo-client/issues/585), so there's no way to automatically reverse the serialization on the client.
 
+## Using a package
+
+Here, we'll take the [graphql-type-json](https://github.com/taion/graphql-type-json) package as an example to demonstrate what can be done. This npm package defines a JSON GraphQL scalar type.
+
+* Add the `graphql-type-json` package to your project's dependencies :
+```shell
+$ npm install --save graphql-type-json
+```
+
+* In your JavaScript code, require the type defined by in the npm package and use it :
+
+```js
+import { makeExecutableSchema } from 'graphql-tools';
+const GraphQLJSON = require('graphql-type-json');
+
+const schemaString = `
+
+scalar JSON
+
+type Foo {
+  aField: JSON
+}
+
+type Query {
+  foo: Foo
+}
+
+`;
+
+const resolveFunctions = {
+  JSON: GraphQLJSON
+};
+
+const jsSchema = makeExecutableSchema({ typeDefs: schemaString, resolvers: resolveFunctions });
+```
+
+Remark : `GraphQLJSON` is a [`GraphQLScalarType`](http://graphql.org/graphql-js/type/#graphqlscalartype) instance.
+
+## Own `GraphQLScalarType` instance
+
+If needed, you can define your own [GraphQLScalarType](http://graphql.org/graphql-js/type/#graphqlscalartype) instance. This can be done the following way :
+
+```js
+import { GraphQLScalarType } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+
+const myCustomScalarType = new GraphQLScalarType({
+  name: 'MyCustomScalar',
+  description: 'Description of my custom scalar type',
+  serialize(value) {
+    let result;
+    // Implement your own behavior here by setting the 'result' variable
+    return result;
+  },
+  parseValue(value) {
+    let result;
+    // Implement your own behavior here by setting the 'result' variable
+    return result;
+  },
+  parseLiteral(ast) {
+    switch (ast.kind) {
+      // Implement your own behavior here by returning what suits your needs
+      // depending on ast.kind
+    }
+  }
+});
+
+const schemaString = `
+
+scalar MyCustomScalar
+
+type Foo {
+  aField: MyCustomScalar
+}
+
+type Query {
+  foo: Foo
+}
+
+`;
+
+const resolverFunctions = {
+  MyCustomScalar: myCustomScalarType
+};
+
+const jsSchema = makeExecutableSchema({ typeDefs: schemaString, resolvers: resolveFunctions });
+```
+
 ## Examples
 
-Let's look at a couple of examples to demonstrate the potential of custom scalars.
+Let's look at a couple of examples to demonstrate how a custom scalar type can be defined.
 
 ### Date as a scalar
 
@@ -43,23 +127,26 @@ type MyType {
 Next, the resolver:
 
 ```js
+import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 
 const resolverMap = {
-  Date: {
-    __parseValue(value) {
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description: 'Date custom scalar type',
+    parseValue(value) {
       return new Date(value); // value from the client
     },
-    __serialize(value) {
+    serialize(value) {
       return value.getTime(); // value sent to the client
     },
-    __parseLiteral(ast) {
+    parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
         return parseInt(ast.value, 10); // ast value is always in string format
       }
       return null;
     },
-  },
+  }),
 };
 ```
 
@@ -78,72 +165,25 @@ type MyType {
 Next, the resolver:
 
 ```js
+import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
-
-Odd: {
-  __serialize: oddValue,
-  __parseValue: oddValue,
-  __parseLiteral(ast) {
-    if (ast.kind === Kind.INT) {
-      return oddValue(parseInt(ast.value, 10));
-    }
-    return null;
-  }
-}
 
 function oddValue(value) {
   return value % 2 === 1 ? value : null;
 }
-```
 
-### JSON as a scalar
-
-While we usually want to define a schema for our data, in some cases it makes sense to store unstructured objects in the database and not define a GraphQL schema for it. JSON is a commonly used format for storing such objects. In GraphQL, we can define a custom scalar type to serialize and parse JSON:
-
-
-```js
-scalar JSON
-
-type MyType {
-   jsonField: JSON
-}
-```
-
-And the implementation of the resolver:
-
-```js
-import { Kind } from 'graphql/language';
-
-function parseJSONLiteral(ast) {
-  switch (ast.kind) {
-    case Kind.STRING:
-    case Kind.BOOLEAN:
-      return ast.value;
-    case Kind.INT:
-    case Kind.FLOAT:
-      return parseFloat(ast.value);
-    case Kind.OBJECT: {
-      const value = Object.create(null);
-      ast.fields.forEach(field => {
-        value[field.name.value] = parseJSONLiteral(field.value);
-      });
-
-      return value;
-    }
-    case Kind.LIST:
-      return ast.values.map(parseJSONLiteral);
-    default:
+const resolverMap = {
+  Odd: new GraphQLScalarType({
+    name: 'Odd',
+    description: 'Odd custom scalar type',
+    parseValue: oddValue,
+    serialize: oddValue,
+    parseLiteral(ast) {
+      if (ast.kind === Kind.INT) {
+        return oddValue(parseInt(ast.value, 10));
+      }
       return null;
-  }
-}
-
-const resolvers =
-  JSON: {
-    __parseLiteral: parseJSONLiteral,
-    __serialize: value => value,
-    __parseValue: value => value,
-  },
+    },
+  }),
 };
 ```
-
-For more information please refer to the [official documentation](http://graphql.org/graphql-js/type/) or to the [Learning GraphQL](https://github.com/mugli/learning-graphql/blob/master/7.%20Deep%20Dive%20into%20GraphQL%20Type%20System.md) tutorial.
