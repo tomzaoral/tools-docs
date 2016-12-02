@@ -14,7 +14,7 @@ Install it with:
 
 ```bash
 # Pick the one that matches your server framework
-npm install graphql graphql-server-express
+npm install graphql graphql-server-express  # for Express or Connect
 npm install graphql graphql-server-hapi
 npm install graphql graphql-server-koa
 ```
