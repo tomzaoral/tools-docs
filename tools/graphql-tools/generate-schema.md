@@ -184,6 +184,21 @@ const typeDefs = [`
 `];
 ```
 
+<h2>Descriptions</h2>
+GraphiQL has built-in support for displaying docstrings with markdown syntax. You can easily add docstrings to types, fiedlds and arguments like below:
+```
+# Description for the type
+type MyObjectType {
+  # Description for field
+  myField: String!
+  
+  otherField(
+    # Description for argument
+    arg: Int
+  )
+}
+```
+
 This [GraphQL schema language cheat sheet](https://raw.githubusercontent.com/sogko/graphql-shorthand-notation-cheat-sheet/master/graphql-shorthand-notation-cheat-sheet.png) by Hafiz Ismail is an excellent reference for all the features of the GraphQL schema language.
 
 <h2 id="api">API</h2>
