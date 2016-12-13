@@ -152,3 +152,14 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 app.listen(PORT);
 ```
+
+`graphqlOptions` can also be a callback that returns a GraphQLOptions or returns a promise that resolves to GraphQLOptions. This function takes a koa 2 `ctx` as its input.
+
+```js
+router.post('/graphql', graphqlKoa((ctx) => {
+  return { 
+    schema: myGraphQLSchema,
+    context: { userId: ctx.cookies.get('userId') }
+  };
+}));
+```
