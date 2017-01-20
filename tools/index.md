@@ -7,12 +7,12 @@ In addition to a set of fully-featured GraphQL clients, the Apollo community mai
 
 If you're looking for a simple way to get a GraphQL.js server up and running, start with [graphql-tools](/tools/graphql-tools/).
 
-## GraphQL server tools
+## GraphQL server & tools
 
-These are tools designed to make it easy to build a JavaScript GraphQL server using [GraphQL.js](https://github.com/graphql/graphql-js), Facebook's reference implementation of a GraphQL type system and execution engine.
+These are libraries designed to make it easy to build a JavaScript GraphQL server using [GraphQL.js](https://github.com/graphql/graphql-js), Facebook's reference implementation of a GraphQL type system and execution engine.
 
 - [graphql-tools](/tools/graphql-tools), a package that enables you to build a production-ready GraphQL.js schema using the GraphQL schema language, rather than using the GraphQL.js type constructors directly. Schemas built with this package are compatible with any GraphQL servers, including our own `apollo-server` and Facebook's `express-graphql`. This allows you to build on the [getting started guide for GraphQL.js](http://graphql.org/graphql-js/) with additional support for resolvers, unions, interfaces, custom scalars, modularizing your schema, and more.
-- [Apollo Server](/tools/graphql-server), a production-ready Node.js GraphQL server library that supports **Express**, **Connect**, **Hapi**, **Koa**, and other popular Node HTTP servers, with built-in features like persisted queries, batching, and more. Apollo Server works with any GraphQL client, like Apollo, Relay, Lokka, and more.
+- [graphql-server](/tools/graphql-server), a production-ready Node.js GraphQL server library that supports **Express**, **Connect**, **Hapi**, **Koa**, and other popular Node HTTP servers, with built-in features like persisted queries, batching, and more. Apollo Server works with any GraphQL client, like Apollo, Relay, Lokka, and more.
 
 ## GraphQL subscriptions
 
