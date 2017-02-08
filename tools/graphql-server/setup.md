@@ -115,6 +115,12 @@ server.register({
     graphqlOptions: { schema: myGraphQLSchema },
   },
 });
+
+server.start((err) => {
+	if (err) {
+		throw err;
+	}
+});
 ```
 
 `graphqlOptions` can also be a callback or a promise:
